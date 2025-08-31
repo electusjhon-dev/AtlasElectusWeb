@@ -16,8 +16,7 @@ Funcionalidades principais:
 ---
 
 ## Link do Projeto Online
-[Clique aqui para acessar o site](electusjhon-dev/AtlasElectusWeb)
-
+[Clique aqui para acessar o site](https://electusjhon-dev.github.io/AtlasElectusWeb/)
 ---
 
 ## Estrutura do Repositório
