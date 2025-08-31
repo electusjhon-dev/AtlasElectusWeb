@@ -16,8 +16,23 @@ Funcionalidades principais:
 ---
 
 ## Link do Projeto Online
-[Clique aqui para acessar o site](https://github.com/electusjhon-dev/AtlasElectusWeb)
+[Clique aqui para acessar o site](electusjhon-dev/AtlasElectusWeb)
 
 ---
 
 ## Estrutura do Repositório
+
+AtlasElectusWeb/ ├── index.html        # Página principal ├── style.css         # Estilo futurista do site ├── script.js         # Scripts de interação └── README.md         # Documentação do projeto
+
+---
+
+## Tecnologias Utilizadas
+- HTML5  
+- CSS3  
+- JavaScript  
+- GitHub Pages  
+
+---
+
+## Créditos
+Desenvolvido como versão open web do projeto Atlas Electus.
