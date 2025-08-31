@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AtlasElectus Web Free</title>
+  <style>
+  :root { --bg:#0f1115; --card:#171a21; --txt:#e6e6e6; --muted:#9aa0a6; --accent:#f1b11a; --line:#272b33; }
+  *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  header,footer{text-align:center;padding:14px;border-bottom:1px solid var(--line)}
+  footer{border-top:1px solid var(--line);border-bottom:none;color:var(--muted)}
+  .card{max-width:980px;margin:24px auto;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  h1{margin:0;font-size:20px} h2{margin:10px 0 8px;font-size:18px} h3{margin:18px 0 8px;font-size:15px;color:var(--muted)}
+  .row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
+  label{width:110px;color:var(--muted)} input,select{flex:1;background:#0d0f14;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:180px}
+  button{background:var(--accent);color:#111;border:none;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
+  button:hover{filter:brightness(1.05)} .seed,.log{background:#0d0f14;border:1px solid var(--line);border-radius:10px;padding:10px;max-height:220px;overflow:auto;white-space:pre-wrap}
+  .hidden{display:none} .end{justify-content:flex-end} .hint{color:var(--muted);margin-top:6px}
+  </style>
+</head>
+<body>
+  <header><h1>AtlasElectus Web Free</h1><small>versão gratuita de testes (sem mainnet)</small></header>
+
+  <main class="card">
+    <section id="loginView">
+      <h2>Login</h2>
+      <label>Usuário</label>
+      <div class="row"><input id="user" type="text" placeholder="atlecsus" /></div>
+      <label>Senha</label>
+      <div class="row"><input id="pass" type="password" placeholder="999888" /></div>
+      <div class="row"><button id="btnLogin">Entrar</button></div>
+      <p class="hint">padrão: usuário atlecsus / senha 999888</p>
+    </section>
+
+    <section id="walletView" class="hidden">
+      <h2>Carteira</h2>
+
+      <div class="row">
+        <button id="btnSeed">Gerar seed (13 palavras)</button>
+        <button id="btnShowSeed">Mostrar/ocultar seed</button>
+      </div>
+      <pre id="seedBox" class="seed hidden"></pre>
+
+      <div class="row">
+        <label>Rede</label>
+        <select id="network">
+          <option value="sepolia">Ethereum Sepolia (testnet)</option>
+          <option value="mumbai">Polygon Mumbai (testnet)</option>
+          <option value="btctest">Bitcoin Testnet</option>
+        </select>
+        <button id="btnConnect">Conectar</button>
+      </div>
+
+      <div class="row">
+        <label>Endereço</label>
+        <input id="address" type="text" readonly />
+        <button id="btnNewAddr">Novo endereço</button>
+      </div>
+
+      <h3>Enviar (simulação)</h3>
+      <div class="row"><label>Para</label><input id="to" type="text" placeholder="endereço destino" /></div>
+      <div class="row"><label>Valor</label><input id="amount" type="number" step="0.0001" placeholder="0.001" /></div>
+      <div class="row"><button id="btnSend">Enviar</button></div>
+
+      <h3>Exportar/Importar backup</h3>
+      <div class="row"><button id="btnExport">Exportar JSON</button><button id="btnImport">Importar JSON</button></div>
+
+      <h3>Log</h3>
+      <pre id="log" class="log"></pre>
+
+      <div class="row end"><button id="btnLogout">Sair</button></div>
+    </section>
+  </main>
+
+  <footer><small>AtlasElectus • versão web gratuita para testes</small></footer>
+
+  <script>
+  const st={logged:false,seed:[],network:"sepolia",address:""}; const $=id=>document.getElementById(id);
+  const log=m=>{$("log").textContent+=("\\n"+new Date().toLocaleTimeString()+" - "+m).trim()};
+  function save(){localStorage.setItem("atlas:web",JSON.stringify(st))} function load(){const r=localStorage.getItem("atlas:web"); if(!r)return; try{Object.assign(st,JSON.parse(r))}catch{}}
+
+  const WORDS=["raio","dourado","triangulo","atlas","electus","chave","rede","seguro","token","gas","carteira","pix","bloco","sinal","nuvem","luz","rocha","ponte","campo","node","hash","assinatura","chamada","bit","dado","rede2","conta","mercado","saldo","envio","teste","mumbai","sepolia","btc","meta","seed","palavra","cifra","futuro","valor","chave2","token2","atlas2","electus2","mapa","nexus","prime","safe"];
+  const rword=()=>WORDS[Math.floor(Math.random()*WORDS.length)];
+  function genSeed13(){st.seed=Array.from({length:13},rword); save(); return st.seed}
+  function addrBTC(){const r=Math.random().toString(36).slice(2,10); return "tb1q"+r+"atlas"}
+  function addrEVM(){const r=Math.random().toString(16).slice(2).padEnd(40,"0").slice(0,40); return "0x"+r}
+  function pickAddr(){return st.network==="btctest"?addrBTC():addrEVM()}
+
+  function bind(){
+    $("btnLogin").onclick=()=>{const u=$("user").value.trim(); const p=$("pass").value.trim(); if(u==="atlecsus"&&p==="999888"){st.logged=true; save(); showWallet(); log("login ok")} else alert("Credenciais inválidas")};
+    $("btnSeed").onclick=()=>{const s=genSeed13(); $("seedBox").textContent=s.join(" "); $("seedBox").classList.remove("hidden"); log("seed gerada")};
+    $("btnShowSeed").onclick=()=>{$("seedBox").classList.toggle("hidden")};
+    $("network").onchange=e=>{st.network=e.target.value; save()};
+    $("btnConnect").onclick=()=>{log("conectado: "+st.network); if(!$("address").value){st.address=pickAddr(); $("address").value=st.address; save()}};
+    $("btnNewAddr").onclick=()=>{st.address=pickAddr(); $("address").value=st.address; save(); log("novo endereço gerado")};
+    $("btnSend").onclick=()=>{const to=$("to").value.trim();
